@@ -2,10 +2,7 @@ import React, { useState } from 'react';
 import {
   Search,
   Bell,
-  RefreshCw,
   Download,
-  Layers,
-  User,
   Shield,
   ChevronDown,
   Clock,
@@ -13,34 +10,23 @@ import {
   CheckCircle,
   AlertTriangle,
   Building,
-  FileSpreadsheet,
-  Settings,
-  ExternalLink,
   Menu
 } from 'lucide-react';
 import { GrievanceRecord, SLABreachAlert } from '../../types';
 
 interface HeaderProps {
-  onOpenArchitecture: () => void;
   onOpenExport: () => void;
   alerts: SLABreachAlert[];
   grievances: GrievanceRecord[];
   onSelectGrievance: (grv: GrievanceRecord) => void;
-  onRefreshData: () => void;
-  isRefreshing: boolean;
-  lastUpdatedSeconds: number;
   onToggleMobileSidebar?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
-  onOpenArchitecture,
   onOpenExport,
   alerts,
   grievances,
   onSelectGrievance,
-  onRefreshData,
-  isRefreshing,
-  lastUpdatedSeconds,
   onToggleMobileSidebar,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');

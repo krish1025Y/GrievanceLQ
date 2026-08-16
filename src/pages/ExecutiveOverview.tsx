@@ -530,8 +530,8 @@ export const ExecutiveOverview: React.FC<ExecutiveOverviewProps> = ({
           </div>
 
           <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>Live event streaming active</span>
-            <span className="font-mono text-[11px] text-emerald-600 font-bold">● 0 Dropped Packets</span>
+            <span>CPGRAMS Nodal Gateway</span>
+            <span className="font-mono text-[11px] text-slate-600 font-semibold">Department of Administrative Reforms</span>
           </div>
         </div>
       </div>

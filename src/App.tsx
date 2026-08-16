@@ -3,7 +3,6 @@ import { Header } from './components/common/Header';
 import { Sidebar, NavTabId } from './components/common/Sidebar';
 import { FilterBar } from './components/common/FilterBar';
 import { DetailDrawer } from './components/common/DetailDrawer';
-import { ArchitectureModal } from './components/common/ArchitectureModal';
 import { ExportModal } from './components/common/ExportModal';
 
 import { ExecutiveOverview } from './pages/ExecutiveOverview';
@@ -32,13 +31,8 @@ export function App() {
   const mainScrollRef = useRef<HTMLElement>(null);
 
   // Modals & Drawers
-  const [isArchitectureOpen, setIsArchitectureOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [selectedGrievance, setSelectedGrievance] = useState<GrievanceRecord | null>(null);
-
-  // Live Refresh simulation
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [lastUpdatedSeconds, setLastUpdatedSeconds] = useState(12);
 
   // Grievance dataset state
   const [grievanceData, setGrievanceData] = useState<GrievanceRecord[]>(() => generateRealisticGrievances());
@@ -54,23 +48,6 @@ export function App() {
     status: '',
     riskLevel: '',
   });
-
-  // Seconds ticker for data freshness indicator
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setLastUpdatedSeconds((prev) => (prev >= 60 ? 1 : prev + 1));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const handleRefreshData = () => {
-    setIsRefreshing(true);
-    setTimeout(() => {
-      setGrievanceData(generateRealisticGrievances());
-      setIsRefreshing(false);
-      setLastUpdatedSeconds(0);
-    }, 600);
-  };
 
   const handleFilterChange = (newFilters: Partial<GlobalFilterState>) => {
     setGlobalFilters((prev) => ({ ...prev, ...newFilters }));
@@ -161,14 +138,10 @@ export function App() {
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans antialiased selection:bg-blue-600 selection:text-white">
       {/* Top Header Navigation */}
       <Header
-        onOpenArchitecture={() => setIsArchitectureOpen(true)}
         onOpenExport={() => setIsExportOpen(true)}
         alerts={SLA_ALERTS_DATA}
         grievances={grievanceData}
         onSelectGrievance={(grv) => setSelectedGrievance(grv)}
-        onRefreshData={handleRefreshData}
-        isRefreshing={isRefreshing}
-        lastUpdatedSeconds={lastUpdatedSeconds}
         onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
       />
 
@@ -291,12 +264,6 @@ export function App() {
         isOpen={Boolean(selectedGrievance)}
         onClose={() => setSelectedGrievance(null)}
         onStatusChange={handleUpdateStatus}
-      />
-
-      {/* Reference Architecture Modal */}
-      <ArchitectureModal
-        isOpen={isArchitectureOpen}
-        onClose={() => setIsArchitectureOpen(false)}
       />
 
       {/* Export Briefing Modal */}
