@@ -1,0 +1,6 @@
+{
+  "name": "GrievanceIQ — CPGRAMS Executive Command Center",
+  "description": "Enterprise CRM & predictive governance intelligence platform for CPGRAMS data, SLA monitoring, district analytics, and decision support.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
