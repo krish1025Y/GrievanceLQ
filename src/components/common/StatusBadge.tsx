@@ -75,13 +75,13 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ type, value, size = 's
   // Case Status
   switch (value) {
     case 'Registered':
-      return <span className={`inline-flex items-center bg-sky-50 text-sky-700 border border-sky-200 font-medium ${sizeClasses}`}>Registered</span>;
+      return <span className={`inline-flex items-center bg-slate-100 text-slate-700 border border-slate-200 font-medium ${sizeClasses}`}>Registered</span>;
     case 'Under Review':
-      return <span className={`inline-flex items-center bg-indigo-50 text-indigo-700 border border-indigo-200 font-medium ${sizeClasses}`}>Under Review</span>;
+      return <span className={`inline-flex items-center bg-slate-100 text-slate-800 border border-slate-300 font-medium ${sizeClasses}`}>Under Review</span>;
     case 'Investigation':
-      return <span className={`inline-flex items-center bg-purple-50 text-purple-700 border border-purple-200 font-medium ${sizeClasses}`}>Investigation</span>;
+      return <span className={`inline-flex items-center bg-slate-100 text-slate-800 border border-slate-300 font-medium ${sizeClasses}`}>Investigation</span>;
     case 'Action Taken':
-      return <span className={`inline-flex items-center bg-teal-50 text-teal-700 border border-teal-200 font-medium ${sizeClasses}`}>Action Taken</span>;
+      return <span className={`inline-flex items-center bg-slate-100 text-[#0b3c6d] border border-slate-200 font-medium ${sizeClasses}`}>Action Taken</span>;
     case 'Resolved':
       return <span className={`inline-flex items-center bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold ${sizeClasses}`}>Resolved</span>;
     case 'Appealed':

@@ -79,20 +79,20 @@ export const Header: React.FC<HeaderProps> = ({
         )}
 
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-xs shrink-0">
-            <Shield size={18} className="text-white" />
+          <div className="w-8 h-8 bg-[#0b3c6d] rounded-lg flex items-center justify-center text-white shadow-xs shrink-0">
+            <Shield size={17} className="text-white" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <span className="text-base font-bold text-slate-900 tracking-tight">
-                Grievance<span className="text-blue-600">IQ</span>
+                CPGRAMS <span className="text-[#0b3c6d] font-semibold">Portal</span>
               </span>
-              <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-100 uppercase tracking-wider">
-                CPGRAMS 7.0
+              <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200 uppercase tracking-wider">
+                Gov of India
               </span>
             </div>
-            <p className="text-xs text-slate-500 hidden md:block">
-              From Data to Predictive Governance & Decision Support
+            <p className="text-[11px] text-slate-500 hidden md:block">
+              Centralized Public Grievance Redress and Monitoring System • DARPG
             </p>
           </div>
         </div>
@@ -174,7 +174,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Export Report Button */}
         <button
           onClick={onOpenExport}
-          className="flex items-center px-3.5 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-md shadow-xs hover:bg-blue-700 transition-colors gap-1.5 cursor-pointer"
+          className="flex items-center px-3.5 py-1.5 bg-[#0b3c6d] text-white text-xs font-semibold rounded-md shadow-xs hover:bg-[#082a4d] transition-colors gap-1.5 cursor-pointer"
         >
           <Download size={13} />
           <span className="hidden sm:inline">Export Report</span>
@@ -184,11 +184,12 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="relative">
           <button
             onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-            className="relative p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            className="relative p-2 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+            aria-label="Notifications"
           >
             <Bell size={18} />
             {alerts.length > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+              <span className="absolute top-1 right-1 w-4 h-4 bg-[#0b3c6d] text-white text-[10px] font-semibold rounded-full flex items-center justify-center shadow-xs">
                 {alerts.length}
               </span>
             )}
@@ -198,14 +199,14 @@ export const Header: React.FC<HeaderProps> = ({
           {isNotificationsOpen && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setIsNotificationsOpen(false)} />
-              <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-2xl border border-slate-200 z-50 overflow-hidden divide-y divide-slate-100 animate-in fade-in zoom-in-95 duration-150">
+              <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-lg border border-slate-200 z-50 overflow-hidden divide-y divide-slate-100 animate-in fade-in zoom-in-95 duration-150">
                 <div className="p-3.5 bg-slate-900 text-white flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Shield size={16} className="text-amber-400" />
-                    <span className="text-xs font-bold">Critical SLA Incident Feed</span>
+                    <Shield size={15} className="text-slate-300" />
+                    <span className="text-xs font-bold text-slate-100">SLA Incident & Escalation Feed</span>
                   </div>
-                  <span className="text-[10px] bg-red-600 text-white font-bold px-1.5 py-0.5 rounded">
-                    {alerts.length} High Priority
+                  <span className="text-[10px] bg-slate-800 text-slate-200 border border-slate-700 font-semibold px-2 py-0.5 rounded">
+                    {alerts.length} Pending
                   </span>
                 </div>
 
@@ -213,7 +214,7 @@ export const Header: React.FC<HeaderProps> = ({
                   {alerts.map((alert) => (
                     <div
                       key={alert.id}
-                      className="p-3 hover:bg-slate-50 transition-colors cursor-pointer"
+                      className="p-3 hover:bg-slate-50/80 transition-colors cursor-pointer"
                       onClick={() => {
                         const match = grievances.find((g) => g.id === alert.grievanceId);
                         if (match) onSelectGrievance(match);
@@ -221,15 +222,15 @@ export const Header: React.FC<HeaderProps> = ({
                       }}
                     >
                       <div className="flex items-center justify-between mb-1">
-                        <span className="font-mono font-bold text-red-700">{alert.registrationNumber}</span>
-                        <span className="text-[10px] font-bold text-red-600 bg-red-50 px-1 rounded border border-red-100">
+                        <span className="font-mono font-bold text-slate-800">{alert.registrationNumber}</span>
+                        <span className="text-[10px] font-semibold text-slate-600 bg-slate-100 px-1.5 py-0.2 rounded border border-slate-200">
                           {alert.timeDisplay}
                         </span>
                       </div>
-                      <p className="text-slate-800 font-medium text-[11px] leading-snug">{alert.description}</p>
+                      <p className="text-slate-700 font-medium text-[11px] leading-snug">{alert.description}</p>
                       <div className="flex items-center justify-between text-[10px] text-slate-500 mt-1.5">
                         <span>{alert.district}, {alert.state}</span>
-                        <span className="text-slate-400">{alert.assignedOfficer}</span>
+                        <span className="text-slate-400 font-mono">{alert.assignedOfficer}</span>
                       </div>
                     </div>
                   ))}
@@ -238,9 +239,9 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="p-2.5 bg-slate-50 text-center">
                   <button
                     onClick={() => setIsNotificationsOpen(false)}
-                    className="text-xs text-blue-600 font-semibold hover:underline"
+                    className="text-xs text-slate-700 hover:text-slate-900 font-semibold hover:underline cursor-pointer"
                   >
-                    View All SLA Monitors →
+                    View SLA Command Center →
                   </button>
                 </div>
               </div>

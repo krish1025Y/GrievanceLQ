@@ -56,56 +56,49 @@ export const ExecutiveOverview: React.FC<ExecutiveOverviewProps> = ({
 }) => {
   // Category distribution data aggregated from mock departments
   const categoryData = [
-    { name: 'Pension Disbursal', count: 18400, color: '#3b82f6' },
-    { name: 'Power & Overbilling', count: 14200, color: '#f59e0b' },
-    { name: 'Highways & Tolls', count: 12900, color: '#10b981' },
-    { name: 'Rural Wages (MGNREGA)', count: 11400, color: '#ef4444' },
-    { name: 'E-Commerce & PDS', count: 9800, color: '#8b5cf6' },
-    { name: 'Health & Ayushman', count: 8200, color: '#06b6d4' },
+    { name: 'Pension Disbursal', count: 18400, color: '#0b3c6d' },
+    { name: 'Power & Overbilling', count: 14200, color: '#2563eb' },
+    { name: 'Highways & Tolls', count: 12900, color: '#059669' },
+    { name: 'Rural Wages (MGNREGA)', count: 11400, color: '#d97706' },
+    { name: 'E-Commerce & PDS', count: 9800, color: '#475569' },
+    { name: 'Health & Ayushman', count: 8200, color: '#0284c7' },
     { name: 'Urban Drainage', count: 7100, color: '#64748b' },
   ];
 
   // SLA Donut Data
   const slaDonutData = [
-    { name: 'Compliant (<7 Days)', value: 88.6, color: '#10b981' },
-    { name: 'At Risk (Near SLA)', value: 7.2, color: '#f59e0b' },
-    { name: 'Breached Violations', value: 4.2, color: '#ef4444' },
+    { name: 'Compliant (<7 Days)', value: 88.6, color: '#059669' },
+    { name: 'At Risk (Near SLA)', value: 7.2, color: '#d97706' },
+    { name: 'Breached Violations', value: 4.2, color: '#dc2626' },
   ];
 
   return (
     <div className="space-y-6">
-      {/* Top Welcome & Mission Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white rounded-2xl p-6 border border-slate-800 shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      {/* Top Header Overview Banner */}
+      <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="bg-blue-500/20 text-blue-300 border border-blue-400/30 text-xs font-semibold px-2.5 py-0.5 rounded flex items-center gap-1">
-              <ShieldCheck size={13} className="text-blue-400" />
-              Apex Governance Intelligence
+          <div className="flex items-center gap-2">
+            <span className="bg-slate-100 text-[#0b3c6d] text-xs font-semibold px-2.5 py-0.5 rounded border border-slate-200 uppercase tracking-wider flex items-center gap-1">
+              <ShieldCheck size={13} className="text-[#0b3c6d]" />
+              CPGRAMS Executive Hub
             </span>
-            <span className="text-slate-400 text-xs font-mono">CPGRAMS Integrated 2026</span>
+            <span className="text-xs text-slate-500 font-mono">10 Key Ministries Monitored</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
-            GrievanceIQ — Executive Command Center
+          <h1 className="text-lg font-bold text-slate-900 mt-1">
+            National Grievance Intelligence & Resolution Dashboard
           </h1>
-          <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl leading-relaxed">
-            From CPGRAMS Data to Predictive Governance & Decision Support. Continuous monitoring of citizen grievance lifecycles, SLA adherence, and systemic bottleneck mitigation.
+          <p className="text-xs text-slate-500 mt-0.5">
+            Centralized monitoring of citizen grievance lifecycles, SLA compliance benchmarks, and automated redressal escalation.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-left">
-            <span className="text-slate-400 block text-[10px] uppercase font-bold">System Status</span>
-            <span className="text-emerald-400 font-bold flex items-center gap-1.5 mt-0.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              All 10 Ministries Operational
-            </span>
-          </div>
+        <div className="flex items-center gap-2">
           <button
             onClick={() => onNavigateTab('recommendations')}
-            className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5"
+            className="px-3.5 py-2 bg-[#0b3c6d] hover:bg-[#082a4d] text-white rounded-md text-xs font-semibold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
           >
             <Sparkles size={14} />
-            Review 5 DSS Actions
+            Decision Support Actions
           </button>
         </div>
       </div>
@@ -141,41 +134,17 @@ export const ExecutiveOverview: React.FC<ExecutiveOverviewProps> = ({
           accentColor="emerald"
           tooltipText="Percentage of cases disposed within citizen charter timeline (standard 30 days)."
         />
-        <div className="bg-white p-4 rounded-xl border border-blue-200 shadow-sm ring-2 ring-blue-50/80 transition-all flex flex-col justify-between">
-          <div>
-            <div className="flex items-start justify-between gap-2 mb-2">
-              <span className="text-xs font-bold text-blue-700 tracking-wider uppercase flex items-center gap-1.5">
-                High-Risk Escalations
-                <span className="text-blue-400 hover:text-blue-600 cursor-help" title="Cases flagged by predictive ML models for imminent legal/media escalation.">
-                  <AlertTriangle size={12} />
-                </span>
-              </span>
-              <div className="p-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-100">
-                <AlertTriangle size={18} />
-              </div>
-            </div>
-
-            <div className="flex items-baseline gap-2 mb-1">
-              <span className="text-2xl font-bold tracking-tight text-blue-950 font-mono">
-                1,842
-              </span>
-              <span className="text-xs font-medium text-slate-500">1.4% of total load</span>
-            </div>
-          </div>
-
-          <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-            <div className="flex items-center gap-1.5">
-              <span className="inline-flex items-center gap-0.5 font-bold text-xs text-emerald-600">
-                <TrendingDown size={12} />
-                -8.1%
-              </span>
-              <span className="text-[10px] text-slate-400 truncate">vs previous period</span>
-            </div>
-            <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">
-              Priority Action
-            </span>
-          </div>
-        </div>
+        <KPICard
+          id="kpi-high-risk-escalations"
+          title="High-Risk Escalations"
+          value="1,842"
+          subValue="1.4% of total load"
+          changePct={-8.1}
+          isInverseMetric={true}
+          icon={<AlertTriangle size={18} />}
+          accentColor="slate"
+          tooltipText="Cases flagged by predictive ML models for imminent legal/media escalation."
+        />
       </div>
 
       {/* Row 1: Volume Trend (Line) + Pending vs Resolved (Area) */}

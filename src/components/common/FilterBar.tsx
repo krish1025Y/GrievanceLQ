@@ -52,8 +52,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 onClick={() => onFilterChange({ dateRange: item.id as any })}
                 className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors whitespace-nowrap ${
                   isActive
-                    ? 'bg-blue-50 text-blue-700 border border-blue-100 shadow-2xs'
-                    : 'text-slate-600 hover:bg-slate-50'
+                    ? 'bg-[#0b3c6d] text-white shadow-2xs'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                 }`}
               >
                 {item.label}
@@ -179,33 +179,33 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active:</span>
             {filters.state && (
-              <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs border border-blue-200">
+              <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-xs border border-slate-200">
                 State: {filters.state}
-                <button onClick={() => onFilterChange({ state: '', district: '' })} className="hover:text-blue-900 font-bold">×</button>
+                <button onClick={() => onFilterChange({ state: '', district: '' })} className="hover:text-slate-900 font-bold">×</button>
               </span>
             )}
             {filters.district && (
-              <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs border border-blue-200">
+              <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-xs border border-slate-200">
                 District: {filters.district}
-                <button onClick={() => onFilterChange({ district: '' })} className="hover:text-blue-900 font-bold">×</button>
+                <button onClick={() => onFilterChange({ district: '' })} className="hover:text-slate-900 font-bold">×</button>
               </span>
             )}
             {filters.department && (
-              <span className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-xs border border-indigo-200 max-w-xs truncate">
+              <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-xs border border-slate-200 max-w-xs truncate">
                 Dept: {filters.department}
-                <button onClick={() => onFilterChange({ department: '' })} className="hover:text-indigo-900 font-bold">×</button>
+                <button onClick={() => onFilterChange({ department: '' })} className="hover:text-slate-900 font-bold">×</button>
               </span>
             )}
             {filters.priority && (
-              <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-800 px-2 py-0.5 rounded text-xs border border-amber-200">
+              <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-xs border border-slate-200">
                 Priority: {filters.priority}
-                <button onClick={() => onFilterChange({ priority: '' })} className="hover:text-amber-900 font-bold">×</button>
+                <button onClick={() => onFilterChange({ priority: '' })} className="hover:text-slate-900 font-bold">×</button>
               </span>
             )}
             {filters.riskLevel && (
-              <span className="inline-flex items-center gap-1 bg-purple-50 text-purple-700 px-2 py-0.5 rounded text-xs border border-purple-200">
+              <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-xs border border-slate-200">
                 Risk: {filters.riskLevel}
-                <button onClick={() => onFilterChange({ riskLevel: '' })} className="hover:text-purple-900 font-bold">×</button>
+                <button onClick={() => onFilterChange({ riskLevel: '' })} className="hover:text-slate-900 font-bold">×</button>
               </span>
             )}
           </div>

@@ -67,7 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'Geospatial Maps',
       icon: <MapPin size={18} />,
       badge: 'Interactive',
-      badgeColor: 'bg-blue-900/60 text-blue-300 font-bold border border-blue-700/50',
+      badgeColor: 'bg-slate-800 text-slate-300 font-semibold border border-slate-700',
       group: 'Geospatial',
     },
     {
@@ -75,7 +75,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'Grievance Directory',
       icon: <FileText size={18} />,
       badge: criticalCasesCount > 0 ? `${criticalCasesCount} alert` : undefined,
-      badgeColor: 'bg-rose-900/60 text-rose-300 font-bold border border-rose-700/50',
+      badgeColor: 'bg-slate-800 text-amber-300 font-semibold border border-slate-700',
       group: 'Caseload',
     },
     {
@@ -83,7 +83,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'AI & Predictive Insights',
       icon: <TrendingUp size={18} />,
       badge: 'ML Forecast',
-      badgeColor: 'bg-purple-900/60 text-purple-300 font-bold border border-purple-700/50',
+      badgeColor: 'bg-slate-800 text-slate-300 font-semibold border border-slate-700',
       group: 'Intelligence',
     },
   ];
@@ -158,14 +158,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 }}
                 className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group relative cursor-pointer text-left select-none ${
                   isActive
-                    ? 'bg-blue-600/20 text-white font-semibold border border-blue-500/40 shadow-xs'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800/70 border border-transparent'
+                    ? 'bg-slate-800 text-white font-semibold border border-slate-700 shadow-xs'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50 border border-transparent'
                 }`}
                 title={isCollapsed && !isMobileOpen ? item.label : undefined}
               >
                 <div
                   className={`shrink-0 transition-colors ${
-                    isActive ? 'text-blue-400' : 'text-slate-400 group-hover:text-white'
+                    isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'
                   }`}
                 >
                   {item.icon}
@@ -178,7 +178,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       <span
                         className={`text-[10px] px-1.5 py-0.5 rounded ml-1 font-mono tracking-tight shrink-0 ${
                           isActive
-                            ? 'bg-blue-600/40 text-blue-200 border border-blue-400/40'
+                            ? 'bg-slate-700 text-slate-200 border border-slate-600'
                             : item.badgeColor
                         }`}
                       >
@@ -190,26 +190,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                 {/* Active Bar indicator */}
                 {isActive && (
-                  <div className="absolute right-0 top-2 bottom-2 w-1 bg-blue-500 rounded-l" />
+                  <div className="absolute right-0 top-2.5 bottom-2.5 w-0.5 bg-slate-300 rounded-l" />
                 )}
               </button>
             );
           })}
         </div>
 
-        {/* Bottom Footer Status Box */}
-        <div className="p-4 border-t border-slate-800 text-xs bg-slate-950/40">
+        {/* Bottom Footer Information */}
+        <div className="p-3 border-t border-slate-800 text-[11px] text-slate-500">
           {!isCollapsed || isMobileOpen ? (
-            <div className="flex items-center justify-between text-slate-400">
-              <span className="text-xs">System Status:</span>
-              <span className="flex items-center text-emerald-400 font-semibold text-xs">
-                <span className="w-2 h-2 bg-emerald-400 rounded-full mr-2 animate-pulse"></span>
-                Operational
-              </span>
+            <div className="flex flex-col space-y-0.5">
+              <span className="font-semibold text-slate-400">pgportal.gov.in</span>
+              <span className="text-[10px] text-slate-500">Department of Administrative Reforms & PG</span>
             </div>
           ) : (
-            <div className="flex justify-center" title="System Status: Operational">
-              <span className="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse"></span>
+            <div className="flex justify-center text-[10px] text-slate-500 font-bold">
+              DARPG
             </div>
           )}
         </div>

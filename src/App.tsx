@@ -127,15 +127,8 @@ export function App() {
   const criticalCasesCount = grievanceData.filter((g) => g.predictedRisk === 'Critical').length;
   const pendingRecommendations = RECOMMENDATIONS_DATA.filter((r) => r.status === 'Active').length;
 
-  const topTabItems: { id: NavTabId; label: string; icon?: string }[] = [
-    { id: 'overview', label: 'Executive Overview' },
-    { id: 'maps', label: 'Geospatial Maps' },
-    { id: 'grievances', label: 'Grievance Directory' },
-    { id: 'insights', label: 'AI & Predictive Insights' },
-  ];
-
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans antialiased selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans antialiased selection:bg-[#0b3c6d] selection:text-white">
       {/* Top Header Navigation */}
       <Header
         onOpenExport={() => setIsExportOpen(true)}
@@ -165,49 +158,6 @@ export function App() {
           id="main-viewport-content"
           className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5 max-w-[1700px] mx-auto w-full"
         >
-          {/* Sleek Minimalist Primary Navigation Bar */}
-          <div className="bg-white p-1.5 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between gap-2 overflow-x-auto">
-            <nav
-              aria-label="Primary Navigation Modules"
-              className="flex items-center gap-1 text-xs"
-            >
-              {topTabItems.map((tab) => {
-                const isActive =
-                  activeTab === tab.id ||
-                  (tab.id === 'maps' && activeTab === 'district') ||
-                  (tab.id === 'insights' && (activeTab === 'predictive' || activeTab === 'bottleneck' || activeTab === 'recommendations')) ||
-                  (tab.id === 'grievances' && activeTab === 'sla');
-
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    id={`top-tab-${tab.id}`}
-                    data-tab={tab.id}
-                    onClick={() => handleTabChange(tab.id)}
-                    className={`px-4 py-2 rounded-lg whitespace-nowrap text-xs font-bold transition-all cursor-pointer shrink-0 flex items-center gap-2 ${
-                      isActive
-                        ? 'bg-blue-600 text-white shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                    }`}
-                  >
-                    <span>{tab.label}</span>
-                    {tab.id === 'maps' && (
-                      <span className={`text-[10px] px-1.5 py-0.2 rounded font-semibold ${isActive ? 'bg-blue-700 text-white' : 'bg-blue-50 text-blue-700'}`}>
-                        Maps
-                      </span>
-                    )}
-                    {tab.id === 'grievances' && criticalCasesCount > 0 && (
-                      <span className={`text-[10px] px-1.5 py-0.2 rounded font-semibold ${isActive ? 'bg-blue-700 text-white' : 'bg-rose-50 text-rose-700'}`}>
-                        {grievanceData.length}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
-
           {/* Global Filter Bar (Accessible across views) */}
           <FilterBar
             filters={globalFilters}

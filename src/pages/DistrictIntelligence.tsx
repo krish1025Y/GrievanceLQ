@@ -31,23 +31,23 @@ export const DistrictIntelligence: React.FC<DistrictIntelligenceProps> = ({
       <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="bg-blue-50 text-blue-700 text-xs font-bold px-2.5 py-0.5 rounded border border-blue-200 uppercase tracking-wider flex items-center gap-1">
-              <MapPin size={13} className="text-blue-600" />
+            <span className="bg-slate-100 text-slate-700 text-xs font-semibold px-2.5 py-0.5 rounded border border-slate-200 uppercase tracking-wider flex items-center gap-1">
+              <MapPin size={13} className="text-[#0b3c6d]" />
               National Geospatial Maps
             </span>
-            <span className="text-xs text-slate-400 font-mono">{totalStatesTracked} State Hubs • 780+ Districts</span>
+            <span className="text-xs text-slate-500 font-mono">{totalStatesTracked} State Hubs • 780+ Districts</span>
           </div>
           <h2 className="text-lg font-bold text-slate-900 mt-1">
             Geospatial Intelligence & Jurisdictional Hotspots
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Interactive map analytics for tracking pending caseloads, SLA breaches, sentiment heat, and regional hotspots.
+            Interactive Leaflet map analytics for tracking pending caseloads, SLA adherence, and regional hotspots.
           </p>
         </div>
 
         {/* State Quick Selector */}
         <div className="flex items-center gap-2">
-          <label htmlFor="state-quick-select" className="text-xs font-bold text-slate-600 shrink-0">
+          <label htmlFor="state-quick-select" className="text-xs font-semibold text-slate-600 shrink-0">
             Focus State:
           </label>
           <select
@@ -57,7 +57,7 @@ export const DistrictIntelligence: React.FC<DistrictIntelligenceProps> = ({
               const st = STATES_DATA.find((s) => s.stateCode === e.target.value);
               setSelectedState(st || null);
             }}
-            className="text-xs font-semibold bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+            className="text-xs font-semibold bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 cursor-pointer"
           >
             <option value="">All India (National View)</option>
             {STATES_DATA.map((st) => (
