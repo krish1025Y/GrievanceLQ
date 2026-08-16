@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   FileText,
   Clock,
@@ -34,6 +34,7 @@ import {
 } from 'recharts';
 import { KPICard } from '../components/common/KPICard';
 import { StatusBadge } from '../components/common/StatusBadge';
+import { IndiaMap } from '../components/common/IndiaMap';
 import {
   EXECUTIVE_OVERVIEW_METRICS,
   GRIEVANCE_VOLUME_TREND,
@@ -41,7 +42,7 @@ import {
   STATES_DATA,
   SLA_ALERTS_DATA,
 } from '../data/mockData';
-import { GrievanceRecord, SLABreachAlert } from '../types';
+import { GrievanceRecord, SLABreachAlert, StateMetric, DistrictMetric } from '../types';
 
 interface ExecutiveOverviewProps {
   onSelectGrievance: (grv: GrievanceRecord) => void;
@@ -54,6 +55,9 @@ export const ExecutiveOverview: React.FC<ExecutiveOverviewProps> = ({
   grievances,
   onNavigateTab,
 }) => {
+  const [mapLayer, setMapLayer] = useState<'pending' | 'sla' | 'sentiment' | 'hotspots' | 'volume'>('pending');
+  const [selectedState, setSelectedState] = useState<StateMetric | null>(null);
+
   // Category distribution data aggregated from mock departments
   const categoryData = [
     { name: 'Pension Disbursal', count: 18400, color: '#0b3c6d' },
@@ -144,6 +148,35 @@ export const ExecutiveOverview: React.FC<ExecutiveOverviewProps> = ({
           icon={<AlertTriangle size={18} />}
           accentColor="slate"
           tooltipText="Cases flagged by predictive ML models for imminent legal/media escalation."
+        />
+      </div>
+
+      {/* Geospatial Leaflet Intelligence Landing Hub */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <MapPin size={17} className="text-[#0b3c6d]" />
+              National Geospatial Grievance & SLA Command Map
+            </h2>
+            <p className="text-xs text-slate-500">
+              Interactive Leaflet GIS map visualizing state command hubs, district clusters, and live SLA indicators.
+            </p>
+          </div>
+          <button
+            onClick={() => onNavigateTab('maps')}
+            className="text-xs text-[#0b3c6d] font-semibold hover:underline flex items-center gap-1 cursor-pointer"
+          >
+            Deep Dive Analytics <ArrowUpRight size={13} />
+          </button>
+        </div>
+
+        <IndiaMap
+          states={STATES_DATA}
+          activeLayer={mapLayer}
+          onLayerChange={setMapLayer}
+          selectedState={selectedState}
+          onSelectState={setSelectedState}
         />
       </div>
 
