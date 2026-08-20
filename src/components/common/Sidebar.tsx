@@ -1,27 +1,23 @@
 import React from 'react';
 import {
   LayoutDashboard,
-  FileText,
-  Clock,
   MapPin,
-  Building2,
-  SmilePlus,
+  FileText,
   TrendingUp,
-  AlertOctagon,
-  Lightbulb,
-  FileSpreadsheet,
-  Settings,
+  MessageSquare,
+  Shield,
   ChevronLeft,
   ChevronRight,
-  ShieldCheck,
-  Zap
+  Bot
 } from 'lucide-react';
+import { AppLanguage, TRANSLATIONS } from '../../utils/translations';
 
 export type NavTabId =
   | 'overview'
   | 'maps'
   | 'grievances'
   | 'insights'
+  | 'whatsapp_bot'
   | 'district'
   | 'predictive'
   | 'sla'
@@ -42,6 +38,7 @@ interface SidebarProps {
   slaBreachCount: number;
   criticalCasesCount: number;
   recommendationsCount: number;
+  language: AppLanguage;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -54,37 +51,42 @@ export const Sidebar: React.FC<SidebarProps> = ({
   slaBreachCount,
   criticalCasesCount,
   recommendationsCount,
+  language,
 }) => {
+  const t = TRANSLATIONS[language];
+
   const navItems = [
     {
       id: 'overview' as NavTabId,
-      label: 'Executive Overview',
-      icon: <LayoutDashboard size={18} />,
-      group: 'Core',
+      label: t.tabDashboard,
+      subtitle: t.tabDashboardSub,
+      icon: <LayoutDashboard size={19} />,
     },
     {
       id: 'maps' as NavTabId,
-      label: 'Geospatial Maps',
-      icon: <MapPin size={18} />,
-      badge: 'Interactive',
-      badgeColor: 'bg-slate-800 text-slate-300 font-semibold border border-slate-700',
-      group: 'Geospatial',
+      label: t.tabMaps,
+      subtitle: t.tabMapsSub,
+      icon: <MapPin size={19} />,
     },
     {
       id: 'grievances' as NavTabId,
-      label: 'Grievance Directory',
-      icon: <FileText size={18} />,
-      badge: criticalCasesCount > 0 ? `${criticalCasesCount} alert` : undefined,
-      badgeColor: 'bg-slate-800 text-amber-300 font-semibold border border-slate-700',
-      group: 'Caseload',
+      label: t.tabGrievances,
+      subtitle: t.tabGrievancesSub,
+      icon: <FileText size={19} />,
+      badge: criticalCasesCount > 0 ? `${criticalCasesCount}` : undefined,
     },
     {
       id: 'insights' as NavTabId,
-      label: 'AI & Predictive Insights',
-      icon: <TrendingUp size={18} />,
-      badge: 'ML Forecast',
-      badgeColor: 'bg-slate-800 text-slate-300 font-semibold border border-slate-700',
-      group: 'Intelligence',
+      label: t.tabPredictive,
+      subtitle: t.tabPredictiveSub,
+      icon: <TrendingUp size={19} />,
+    },
+    {
+      id: 'whatsapp_bot' as NavTabId,
+      label: t.tabWhatsAppBot,
+      subtitle: t.tabWhatsAppBotSub,
+      icon: <Bot size={19} />,
+      isNew: true,
     },
   ];
 
@@ -95,120 +97,121 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div
           id="sidebar-mobile-backdrop"
           onClick={onCloseMobile}
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-40 lg:hidden animate-in fade-in duration-150"
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 lg:hidden animate-in fade-in duration-150"
         />
       )}
 
       <aside
         id="app-sidebar"
-        className={`bg-slate-900 text-slate-300 flex flex-col justify-between border-r border-slate-800 shrink-0 transition-all duration-300 z-40 lg:z-20 ${
+        className={`bg-white border-r border-slate-200/80 flex flex-col justify-between shrink-0 transition-all duration-300 z-40 lg:z-20 ${
           isMobileOpen
-            ? 'fixed inset-y-0 left-0 w-64 shadow-2xl flex'
+            ? 'fixed inset-y-0 left-0 w-72 shadow-2xl flex'
             : 'hidden lg:flex'
-        } ${isCollapsed && !isMobileOpen ? 'lg:w-16' : 'lg:w-64'}`}
+        } ${isCollapsed && !isMobileOpen ? 'lg:w-20' : 'lg:w-72'}`}
       >
-        {/* Navigation Items */}
-        <div className="flex-1 overflow-y-auto py-3 px-2 space-y-1">
-          {/* Collapse toggle button on top right of sidebar */}
-          <div className="px-3 py-2 mb-1 flex items-center justify-between">
+        <div className="flex-1 p-4 space-y-5 overflow-y-auto">
+          {/* App Brand / Identity Badge */}
+          <div className="flex items-center gap-3 px-2 pt-1">
+            <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-xs shrink-0">
+              <Shield size={20} className="text-white" />
+            </div>
             {(!isCollapsed || isMobileOpen) && (
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-                Navigation Modules
-              </span>
-            )}
-            {/* Desktop Collapse Button */}
-            <button
-              type="button"
-              id="sidebar-toggle-collapse-btn"
-              onClick={onToggleCollapse}
-              className="hidden lg:block p-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors ml-auto cursor-pointer"
-              title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-              aria-label={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-            >
-              {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-            </button>
-            {/* Mobile Close Button */}
-            {isMobileOpen && (
-              <button
-                type="button"
-                id="sidebar-mobile-close-btn"
-                onClick={onCloseMobile}
-                className="lg:hidden p-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors ml-auto cursor-pointer"
-                title="Close Navigation Menu"
-                aria-label="Close Navigation Menu"
-              >
-                <ChevronLeft size={18} />
-              </button>
+              <div className="overflow-hidden">
+                <h2 className="text-sm font-bold text-slate-900 leading-none truncate">
+                  {t.appTitle}
+                </h2>
+                <p className="text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                  {t.appSubtitle}
+                </p>
+              </div>
             )}
           </div>
 
-          {/* Links */}
-          {navItems.map((item) => {
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                type="button"
-                key={item.id}
-                id={`nav-tab-${item.id}`}
-                data-tab-id={item.id}
-                aria-selected={isActive}
-                onClick={() => {
-                  onTabChange(item.id);
-                  if (onCloseMobile) onCloseMobile();
-                }}
-                className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group relative cursor-pointer text-left select-none ${
-                  isActive
-                    ? 'bg-slate-800 text-white font-semibold border border-slate-700 shadow-xs'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50 border border-transparent'
-                }`}
-                title={isCollapsed && !isMobileOpen ? item.label : undefined}
-              >
-                <div
-                  className={`shrink-0 transition-colors ${
-                    isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'
-                  }`}
-                >
-                  {item.icon}
-                </div>
-
-                {(!isCollapsed || isMobileOpen) && (
-                  <div className="flex-1 flex items-center justify-between truncate">
-                    <span className="truncate">{item.label}</span>
-                    {item.badge && (
-                      <span
-                        className={`text-[10px] px-1.5 py-0.5 rounded ml-1 font-mono tracking-tight shrink-0 ${
-                          isActive
-                            ? 'bg-slate-700 text-slate-200 border border-slate-600'
-                            : item.badgeColor
-                        }`}
-                      >
-                        {item.badge}
-                      </span>
-                    )}
-                  </div>
-                )}
-
-                {/* Active Bar indicator */}
-                {isActive && (
-                  <div className="absolute right-0 top-2.5 bottom-2.5 w-0.5 bg-slate-300 rounded-l" />
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Bottom Footer Information */}
-        <div className="p-3 border-t border-slate-800 text-[11px] text-slate-500">
-          {!isCollapsed || isMobileOpen ? (
-            <div className="flex flex-col space-y-0.5">
-              <span className="font-semibold text-slate-400">pgportal.gov.in</span>
-              <span className="text-[10px] text-slate-500">Department of Administrative Reforms & PG</span>
-            </div>
-          ) : (
-            <div className="flex justify-center text-[10px] text-slate-500 font-bold">
-              DARPG
+          {/* Quick Location / Jurisdictional Pill */}
+          {(!isCollapsed || isMobileOpen) && (
+            <div className="bg-slate-50 hover:bg-slate-100/80 text-slate-600 rounded-xl px-3 py-2 flex items-center gap-2 text-xs font-mono border border-slate-200/70 transition-colors">
+              <MapPin size={14} className="text-slate-400 shrink-0" />
+              <span className="truncate text-[11px] text-slate-600 font-medium">
+                28.6139° N, 77.2090° E (New Delhi)
+              </span>
             </div>
           )}
+
+          {/* Navigation Menu Links */}
+          <nav className="space-y-1.5 pt-1">
+            {navItems.map((item) => {
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    onTabChange(item.id);
+                    if (isMobileOpen && onCloseMobile) onCloseMobile();
+                  }}
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all cursor-pointer text-left select-none ${
+                    isActive
+                      ? 'bg-slate-900 text-white shadow-xs font-semibold'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium'
+                  }`}
+                  title={isCollapsed && !isMobileOpen ? item.label : undefined}
+                >
+                  <div className="shrink-0">{item.icon}</div>
+                  {(!isCollapsed || isMobileOpen) && (
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs tracking-tight truncate font-semibold">
+                          {item.label}
+                        </span>
+                        {item.badge && (
+                          <span
+                            className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold font-mono ${
+                              isActive
+                                ? 'bg-white/20 text-white'
+                                : 'bg-slate-100 text-slate-700'
+                            }`}
+                          >
+                            {item.badge}
+                          </span>
+                        )}
+                        {item.isNew && (
+                          <span
+                            className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold uppercase ${
+                              isActive
+                                ? 'bg-emerald-500 text-white'
+                                : 'bg-emerald-100 text-emerald-800'
+                            }`}
+                          >
+                            AI Bot
+                          </span>
+                        )}
+                      </div>
+                      <p className={`text-[10px] truncate mt-0.5 ${isActive ? 'text-slate-300' : 'text-slate-400'}`}>
+                        {item.subtitle}
+                      </p>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Footer info & collapse toggle */}
+        <div className="p-3.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          {(!isCollapsed || isMobileOpen) && (
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-slate-800 animate-pulse"></div>
+              <span className="text-[11px] font-medium text-slate-500">DARPG National Node</span>
+            </div>
+          )}
+
+          <button
+            onClick={onToggleCollapse}
+            className="hidden lg:flex p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors ml-auto cursor-pointer"
+            aria-label={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+          >
+            {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          </button>
         </div>
       </aside>
     </>

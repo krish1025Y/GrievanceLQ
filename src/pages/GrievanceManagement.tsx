@@ -16,22 +16,27 @@ import {
   Building,
   MapPin,
   Clock,
-  Sparkles
+  Sparkles,
+  Layers
 } from 'lucide-react';
 import { GrievanceRecord, PriorityLevel, CaseStatus, SLAStatus, RiskLevel } from '../types';
 import { StatusBadge } from '../components/common/StatusBadge';
+import { AppLanguage, TRANSLATIONS } from '../utils/translations';
 
 interface GrievanceManagementProps {
   grievances: GrievanceRecord[];
   onSelectGrievance: (grv: GrievanceRecord) => void;
   onBulkStatusChange?: (ids: string[], status: CaseStatus) => void;
+  language?: AppLanguage;
 }
 
 export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
   grievances,
   onSelectGrievance,
   onBulkStatusChange,
+  language = 'en',
 }) => {
+  const t = TRANSLATIONS[language];
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedPriority, setSelectedPriority] = useState<string>('all');
@@ -77,7 +82,6 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
   // Filtering & Sorting
   const filteredGrievances = useMemo(() => {
     return grievances.filter((g) => {
-      // Search
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const match =
@@ -90,7 +94,6 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
         if (!match) return false;
       }
 
-      // Status
       if (selectedStatus === 'underReview' && g.status !== 'Under Review') return false;
       if (selectedStatus === 'investigation' && g.status !== 'Investigation') return false;
       if (selectedStatus === 'actionTaken' && g.status !== 'Action Taken') return false;
@@ -98,13 +101,8 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
       if (selectedStatus === 'appealed' && g.status !== 'Appealed') return false;
       if (selectedStatus === 'criticalRisk' && g.predictedRisk !== 'Critical') return false;
 
-      // Priority
       if (selectedPriority !== 'all' && g.priority !== selectedPriority) return false;
-
-      // Risk
       if (selectedRisk !== 'all' && g.predictedRisk !== selectedRisk) return false;
-
-      // Dept
       if (selectedDept !== 'all' && g.department !== selectedDept) return false;
 
       return true;
@@ -212,12 +210,19 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-w-7xl mx-auto pb-10">
       {/* Top Banner with CRM Stats */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-            CPGRAMS Case Management & Triage Console
+          <div className="flex items-center gap-2">
+            <span className="bg-slate-100 text-slate-800 text-xs font-bold px-2.5 py-0.5 rounded-full border border-slate-200 uppercase tracking-wider flex items-center gap-1">
+              <Layers size={13} className="text-slate-700" />
+              National Grievance Ledger
+            </span>
+            <span className="text-xs text-slate-400 font-mono">Real-time Central Database</span>
+          </div>
+          <h2 className="text-xl font-bold text-slate-900 mt-1">
+            {t.tabGrievances} & Resolution Registry
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
             Operational CRM interface for searching, auditing, reassigning, and disposing citizen grievances.
@@ -227,7 +232,7 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={handleExportCSV}
-            className="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs"
+            className="px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs cursor-pointer"
           >
             <Download size={13} />
             Export CSV ({filteredGrievances.length})
@@ -236,7 +241,7 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
           <div className="relative">
             <button
               onClick={() => setIsColumnPickerOpen(!isColumnPickerOpen)}
-              className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"
+              className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200/80 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <SlidersHorizontal size={13} />
               Columns
@@ -245,19 +250,19 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
             {isColumnPickerOpen && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setIsColumnPickerOpen(false)} />
-                <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-xl z-50 p-3 space-y-2 text-xs">
-                  <div className="font-bold text-slate-800 text-[11px] uppercase tracking-wider pb-1 border-b border-slate-100">
+                <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 p-3.5 space-y-2 text-xs">
+                  <div className="font-bold text-slate-800 text-[11px] uppercase tracking-wider pb-1.5 border-b border-slate-100">
                     Customize Table Columns
                   </div>
                   {Object.entries(visibleColumns).map(([key, isVis]) => (
-                    <label key={key} className="flex items-center gap-2 cursor-pointer text-slate-700 capitalize">
+                    <label key={key} className="flex items-center gap-2 cursor-pointer text-slate-700 capitalize py-0.5">
                       <input
                         type="checkbox"
                         checked={isVis}
                         onChange={(e) =>
                           setVisibleColumns({ ...visibleColumns, [key]: e.target.checked })
                         }
-                        className="rounded text-blue-600 focus:ring-blue-500"
+                        className="rounded text-slate-900 focus:ring-slate-900"
                       />
                       <span>{key.replace(/([A-Z])/g, ' $1')}</span>
                     </label>
@@ -269,82 +274,82 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
         </div>
       </div>
 
-      {/* CRM Filter Tabs */}
-      <div className="flex flex-wrap items-center gap-1.5 border-b border-slate-200 pb-2">
+      {/* CRM Filter Tabs with smooth rounded pills */}
+      <div className="flex flex-wrap items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/80 text-xs">
         <button
           onClick={() => { setSelectedStatus('all'); setCurrentPage(1); }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-            selectedStatus === 'all' ? 'bg-slate-900 text-white shadow-2xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+          className={`px-3 py-1.5 rounded-xl font-medium transition-all cursor-pointer ${
+            selectedStatus === 'all' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          All Cases ({statusCounts.all})
+          {t.filterAll} ({statusCounts.all})
         </button>
         <button
           onClick={() => { setSelectedStatus('underReview'); setCurrentPage(1); }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-            selectedStatus === 'underReview' ? 'bg-indigo-600 text-white shadow-2xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+          className={`px-3 py-1.5 rounded-xl font-medium transition-all cursor-pointer ${
+            selectedStatus === 'underReview' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          Under Review ({statusCounts.underReview})
+          {t.statusUnderReview} ({statusCounts.underReview})
         </button>
         <button
           onClick={() => { setSelectedStatus('investigation'); setCurrentPage(1); }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-            selectedStatus === 'investigation' ? 'bg-purple-600 text-white shadow-2xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+          className={`px-3 py-1.5 rounded-xl font-medium transition-all cursor-pointer ${
+            selectedStatus === 'investigation' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          Investigation ({statusCounts.investigation})
+          {t.statusInvestigation} ({statusCounts.investigation})
         </button>
         <button
           onClick={() => { setSelectedStatus('actionTaken'); setCurrentPage(1); }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-            selectedStatus === 'actionTaken' ? 'bg-teal-600 text-white shadow-2xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+          className={`px-3 py-1.5 rounded-xl font-medium transition-all cursor-pointer ${
+            selectedStatus === 'actionTaken' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          Action Taken ({statusCounts.actionTaken})
+          {t.statusActionTaken} ({statusCounts.actionTaken})
         </button>
         <button
           onClick={() => { setSelectedStatus('resolved'); setCurrentPage(1); }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-            selectedStatus === 'resolved' ? 'bg-emerald-600 text-white shadow-2xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+          className={`px-3 py-1.5 rounded-xl font-medium transition-all cursor-pointer ${
+            selectedStatus === 'resolved' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          Resolved ({statusCounts.resolved})
+          {t.statusResolved} ({statusCounts.resolved})
         </button>
         <button
           onClick={() => { setSelectedStatus('appealed'); setCurrentPage(1); }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-            selectedStatus === 'appealed' ? 'bg-amber-600 text-white shadow-2xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+          className={`px-3 py-1.5 rounded-xl font-medium transition-all cursor-pointer ${
+            selectedStatus === 'appealed' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          Appealed ({statusCounts.appealed})
+          {t.statusAppealed} ({statusCounts.appealed})
         </button>
         <button
           onClick={() => { setSelectedStatus('criticalRisk'); setCurrentPage(1); }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 ${
-            selectedStatus === 'criticalRisk' ? 'bg-rose-600 text-white shadow-2xs' : 'bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200'
+          className={`px-3 py-1.5 rounded-xl font-semibold transition-all flex items-center gap-1 cursor-pointer ml-auto ${
+            selectedStatus === 'criticalRisk' ? 'bg-slate-900 text-white shadow-xs' : 'text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200/80'
           }`}
         >
           <AlertTriangle size={12} />
-          High-Risk Escalations ({statusCounts.criticalRisk})
+          {t.criticalRisk} ({statusCounts.criticalRisk})
         </button>
       </div>
 
       {/* Quick Search & Filter Controls */}
-      <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs flex flex-wrap items-center justify-between gap-3">
-        <div className="flex-1 min-w-[240px] relative">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+      <div className="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div className="flex-1 min-w-[260px] relative">
+          <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-            placeholder="Search by ID, citizen name, subject, or district..."
-            className="w-full pl-9 pr-8 py-1.5 bg-slate-50 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white"
+            placeholder={t.searchPlaceholder}
+            className="w-full pl-9 pr-8 py-2 bg-slate-50 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:bg-white transition-all font-medium"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold p-1 cursor-pointer"
             >
               ×
             </button>
@@ -355,7 +360,7 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
           <select
             value={selectedPriority}
             onChange={(e) => { setSelectedPriority(e.target.value); setCurrentPage(1); }}
-            className="p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700"
+            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 font-medium cursor-pointer"
           >
             <option value="all">All Priorities</option>
             <option value="Critical">Critical</option>
@@ -367,7 +372,7 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
           <select
             value={selectedRisk}
             onChange={(e) => { setSelectedRisk(e.target.value); setCurrentPage(1); }}
-            className="p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700"
+            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 font-medium cursor-pointer"
           >
             <option value="all">All AI Risks</option>
             <option value="Critical">Critical Risk</option>
@@ -380,41 +385,41 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
 
       {/* Bulk Action Bar (when rows are selected) */}
       {selectedIds.length > 0 && (
-        <div className="bg-slate-900 text-white px-4 py-2.5 rounded-xl flex items-center justify-between text-xs animate-in fade-in duration-150">
+        <div className="bg-slate-900 text-white px-4 py-3 rounded-2xl flex items-center justify-between text-xs animate-in fade-in duration-150 shadow-md">
           <div className="flex items-center gap-2">
-            <CheckSquare size={16} className="text-blue-400" />
+            <CheckSquare size={16} className="text-slate-300" />
             <span className="font-bold">{selectedIds.length} Grievance Cases Selected</span>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => handleBulkAction('resolve')}
-              className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition-colors"
+              className="px-3.5 py-1.5 bg-white text-slate-900 hover:bg-slate-100 rounded-xl font-semibold transition-colors cursor-pointer"
             >
               Batch Approve Disposal
             </button>
             <button
               onClick={() => handleBulkAction('escalate')}
-              className="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-semibold transition-colors"
+              className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-semibold transition-colors cursor-pointer border border-slate-700"
             >
               Batch Escalate to DM
             </button>
             <button
               onClick={() => setSelectedIds([])}
-              className="px-2 py-1 text-slate-400 hover:text-white"
+              className="px-2.5 py-1.5 text-slate-400 hover:text-white cursor-pointer"
             >
-              Clear Selection
+              Clear
             </button>
           </div>
         </div>
       )}
 
       {/* Main CRM Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-[11px]">
-                <th className="py-3 px-3 w-8">
+              <tr className="bg-slate-50 border-b border-slate-200/80 text-slate-500 uppercase text-[11px] font-semibold">
+                <th className="py-3 px-3.5 w-8">
                   <input
                     type="checkbox"
                     checked={
@@ -422,13 +427,13 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
                       paginatedData.every((d) => selectedIds.includes(d.id))
                     }
                     onChange={handleSelectAllOnPage}
-                    className="rounded text-blue-600 focus:ring-blue-500"
+                    className="rounded text-slate-900 focus:ring-slate-900 cursor-pointer"
                   />
                 </th>
 
                 {visibleColumns.registrationNumber && (
                   <th
-                    className="py-3 px-3 cursor-pointer hover:text-slate-800"
+                    className="py-3 px-3.5 cursor-pointer hover:text-slate-800"
                     onClick={() => handleSort('registrationNumber')}
                   >
                     <div className="flex items-center gap-1">
@@ -440,7 +445,7 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
 
                 {visibleColumns.citizenName && (
                   <th
-                    className="py-3 px-3 cursor-pointer hover:text-slate-800"
+                    className="py-3 px-3.5 cursor-pointer hover:text-slate-800"
                     onClick={() => handleSort('citizenName')}
                   >
                     <div className="flex items-center gap-1">
@@ -452,7 +457,7 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
 
                 {visibleColumns.category && (
                   <th
-                    className="py-3 px-3 cursor-pointer hover:text-slate-800"
+                    className="py-3 px-3.5 cursor-pointer hover:text-slate-800"
                     onClick={() => handleSort('category')}
                   >
                     <div className="flex items-center gap-1">
@@ -463,16 +468,16 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
                 )}
 
                 {visibleColumns.jurisdiction && (
-                  <th className="py-3 px-3">State & District</th>
+                  <th className="py-3 px-3.5">State & District</th>
                 )}
 
                 {visibleColumns.department && (
-                  <th className="py-3 px-3">Department</th>
+                  <th className="py-3 px-3.5">Department</th>
                 )}
 
                 {visibleColumns.priority && (
                   <th
-                    className="py-3 px-3 cursor-pointer hover:text-slate-800"
+                    className="py-3 px-3.5 cursor-pointer hover:text-slate-800"
                     onClick={() => handleSort('priority')}
                   >
                     <div className="flex items-center gap-1">
@@ -484,7 +489,7 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
 
                 {visibleColumns.status && (
                   <th
-                    className="py-3 px-3 cursor-pointer hover:text-slate-800"
+                    className="py-3 px-3.5 cursor-pointer hover:text-slate-800"
                     onClick={() => handleSort('status')}
                   >
                     <div className="flex items-center gap-1">
@@ -496,7 +501,7 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
 
                 {visibleColumns.slaStatus && (
                   <th
-                    className="py-3 px-3 cursor-pointer hover:text-slate-800"
+                    className="py-3 px-3.5 cursor-pointer hover:text-slate-800"
                     onClick={() => handleSort('slaStatus')}
                   >
                     <div className="flex items-center gap-1">
@@ -507,12 +512,12 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
                 )}
 
                 {visibleColumns.assignedOfficer && (
-                  <th className="py-3 px-3">Assigned Nodal Officer</th>
+                  <th className="py-3 px-3.5">Assigned Officer</th>
                 )}
 
                 {visibleColumns.createdDate && (
                   <th
-                    className="py-3 px-3 cursor-pointer hover:text-slate-800"
+                    className="py-3 px-3.5 cursor-pointer hover:text-slate-800"
                     onClick={() => handleSort('createdDate')}
                   >
                     <div className="flex items-center gap-1">
@@ -524,7 +529,7 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
 
                 {visibleColumns.predictedRisk && (
                   <th
-                    className="py-3 px-3 cursor-pointer hover:text-slate-800"
+                    className="py-3 px-3.5 cursor-pointer hover:text-slate-800"
                     onClick={() => handleSort('predictedRisk')}
                   >
                     <div className="flex items-center gap-1">
@@ -534,7 +539,7 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
                   </th>
                 )}
 
-                <th className="py-3 px-3 text-right">Actions</th>
+                <th className="py-3 px-3.5 text-right">Actions</th>
               </tr>
             </thead>
 
@@ -546,89 +551,89 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
                     <tr
                       key={grv.id}
                       onClick={() => onSelectGrievance(grv)}
-                      className={`hover:bg-blue-50/40 cursor-pointer transition-colors ${
-                        isSelected ? 'bg-blue-50/60' : ''
+                      className={`hover:bg-slate-50/80 cursor-pointer transition-colors ${
+                        isSelected ? 'bg-slate-100/70' : ''
                       }`}
                     >
-                      <td className="py-3 px-3" onClick={(e) => e.stopPropagation()}>
+                      <td className="py-3 px-3.5" onClick={(e) => e.stopPropagation()}>
                         <input
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => handleToggleSelectOne(grv.id)}
-                          className="rounded text-blue-600 focus:ring-blue-500"
+                          className="rounded text-slate-900 focus:ring-slate-900 cursor-pointer"
                         />
                       </td>
 
                       {visibleColumns.registrationNumber && (
-                        <td className="py-3 px-3 font-mono font-bold text-blue-700 whitespace-nowrap">
+                        <td className="py-3 px-3.5 font-mono font-bold text-slate-900 whitespace-nowrap">
                           {grv.registrationNumber}
                         </td>
                       )}
 
                       {visibleColumns.citizenName && (
-                        <td className="py-3 px-3 font-semibold text-slate-900 whitespace-nowrap">
+                        <td className="py-3 px-3.5 font-semibold text-slate-900 whitespace-nowrap">
                           {grv.citizenName}
                         </td>
                       )}
 
                       {visibleColumns.category && (
-                        <td className="py-3 px-3 text-slate-700 max-w-xs truncate">
+                        <td className="py-3 px-3.5 text-slate-700 max-w-xs truncate font-medium">
                           {grv.category}
                         </td>
                       )}
 
                       {visibleColumns.jurisdiction && (
-                        <td className="py-3 px-3 text-slate-600 whitespace-nowrap">
+                        <td className="py-3 px-3.5 text-slate-600 whitespace-nowrap">
                           {grv.district}, <span className="text-slate-400">{grv.state}</span>
                         </td>
                       )}
 
                       {visibleColumns.department && (
-                        <td className="py-3 px-3 text-slate-700 max-w-xs truncate">
+                        <td className="py-3 px-3.5 text-slate-700 max-w-xs truncate">
                           {grv.department}
                         </td>
                       )}
 
                       {visibleColumns.priority && (
-                        <td className="py-3 px-3 whitespace-nowrap">
+                        <td className="py-3 px-3.5 whitespace-nowrap">
                           <StatusBadge type="priority" value={grv.priority} />
                         </td>
                       )}
 
                       {visibleColumns.status && (
-                        <td className="py-3 px-3 whitespace-nowrap">
+                        <td className="py-3 px-3.5 whitespace-nowrap">
                           <StatusBadge type="status" value={grv.status} />
                         </td>
                       )}
 
                       {visibleColumns.slaStatus && (
-                        <td className="py-3 px-3 whitespace-nowrap">
+                        <td className="py-3 px-3.5 whitespace-nowrap">
                           <StatusBadge type="sla" value={grv.slaStatus} />
                         </td>
                       )}
 
                       {visibleColumns.assignedOfficer && (
-                        <td className="py-3 px-3 text-slate-700 whitespace-nowrap">
+                        <td className="py-3 px-3.5 text-slate-700 whitespace-nowrap">
                           <span className="font-medium text-slate-800">{grv.assignedOfficer.name.split(',')[0]}</span>
                         </td>
                       )}
 
                       {visibleColumns.createdDate && (
-                        <td className="py-3 px-3 font-mono text-slate-500 whitespace-nowrap">
+                        <td className="py-3 px-3.5 font-mono text-slate-500 whitespace-nowrap">
                           {grv.createdDate}
                         </td>
                       )}
 
                       {visibleColumns.predictedRisk && (
-                        <td className="py-3 px-3 whitespace-nowrap">
+                        <td className="py-3 px-3.5 whitespace-nowrap">
                           <StatusBadge type="risk" value={grv.predictedRisk} />
                         </td>
                       )}
 
-                      <td className="py-3 px-3 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                      <td className="py-3 px-3.5 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={() => onSelectGrievance(grv)}
-                          className="p-1 text-slate-400 hover:text-blue-600 hover:bg-slate-100 rounded transition-colors"
+                          className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                           title="Open Case File"
                         >
                           <Eye size={15} />
@@ -649,13 +654,13 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
         </div>
 
         {/* Pagination Bar */}
-        <div className="bg-slate-50 px-4 py-3 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
+        <div className="bg-slate-50 px-4 py-3 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
           <div className="flex items-center gap-2">
             <span>Rows per page:</span>
             <select
               value={pageSize}
               onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
-              className="bg-white border border-slate-300 rounded p-1 text-xs"
+              className="bg-white border border-slate-200 rounded-lg p-1 text-xs font-medium cursor-pointer"
             >
               <option value={10}>10</option>
               <option value={15}>15</option>
@@ -671,7 +676,7 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="p-1.5 rounded bg-white border border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100"
+              className="p-1.5 rounded-lg bg-white border border-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 cursor-pointer"
             >
               <ChevronLeft size={14} />
             </button>
@@ -681,7 +686,7 @@ export const GrievanceManagement: React.FC<GrievanceManagementProps> = ({
             <button
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="p-1.5 rounded bg-white border border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100"
+              className="p-1.5 rounded-lg bg-white border border-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 cursor-pointer"
             >
               <ChevronRight size={14} />
             </button>

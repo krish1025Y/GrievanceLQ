@@ -1,14 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
-import { Layers, RotateCcw, AlertTriangle, MapPin, ZoomIn, ZoomOut } from 'lucide-react';
+import { RotateCcw, AlertTriangle, ZoomIn, ZoomOut, Layers } from 'lucide-react';
 import { StateMetric, DistrictMetric } from '../../types';
-import { StatusBadge } from './StatusBadge';
 
-// Explicit Leaflet Tile provider with no API key requirement (CartoDB voyager clean tiles)
+// CartoDB Voyager Clean Tiles
 const MAP_TILE_URL = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-const MAP_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+const MAP_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
-// Geocoordinates for Indian States & Major Districts
+// Coordinates
 const STATE_COORDINATES: Record<string, { lat: number; lng: number; zoom: number }> = {
   MH: { lat: 19.7515, lng: 75.7139, zoom: 6 },
   UP: { lat: 26.8467, lng: 80.9462, zoom: 6 },
@@ -89,22 +88,27 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({
 
   // Helper to calculate marker color based on active layer
   const getMetricColor = (state: StateMetric) => {
-    if (activeLayer === 'pending') {
-      if (state.pendingLoad > 10000) return '#7f1d1d';
-      if (state.pendingLoad > 6000) return '#b45309';
-      return '#0b3c6d';
+    if (activeLayer === 'pending' || activeLayer === 'volume') {
+      if (state.pendingLoad > 10000) return '#b91c1c'; // red
+      if (state.pendingLoad > 6000) return '#d97706'; // amber
+      return '#1e3a8a'; // deep navy
     }
     if (activeLayer === 'sla') {
-      if (state.slaCompliancePct < 78) return '#7f1d1d';
-      if (state.slaCompliancePct < 85) return '#b45309';
-      return '#047857';
+      if (state.slaCompliancePct < 78) return '#b91c1c';
+      if (state.slaCompliancePct < 85) return '#d97706';
+      return '#1e3a8a'; // deep navy
     }
     if (activeLayer === 'sentiment') {
-      if (state.sentimentScore < -0.3) return '#7f1d1d';
-      if (state.sentimentScore < 0) return '#b45309';
-      return '#047857';
+      if (state.sentimentScore < -0.3) return '#b91c1c';
+      if (state.sentimentScore < 0) return '#d97706';
+      return '#1e3a8a'; // deep navy
     }
-    return '#0b3c6d';
+    if (activeLayer === 'hotspots') {
+      if (state.riskLevel === 'Critical') return '#b91c1c';
+      if (state.riskLevel === 'High') return '#d97706';
+      return '#1e3a8a'; // deep navy
+    }
+    return '#1e3a8a';
   };
 
   // Initialize Leaflet Map
@@ -116,8 +120,8 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({
         center: [22.5, 78.9],
         zoom: 4.8,
         minZoom: 4,
-        maxZoom: 9,
-        zoomControl: false,
+        maxZoom: 10,
+        zoomControl: true,
       });
 
       L.tileLayer(MAP_TILE_URL, {
@@ -138,7 +142,7 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({
     };
   }, []);
 
-  // Update Leaflet Markers
+  // Update Leaflet Badges & Pins
   useEffect(() => {
     const map = mapInstanceRef.current;
     const markersGroup = markersLayerRef.current;
@@ -152,36 +156,41 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({
 
       selectedState.districts.forEach((dist) => {
         const coords = DISTRICT_COORDINATES[dist.districtName] || {
-          lat: stateCoord.lat + (Math.random() - 0.5) * 1.2,
-          lng: stateCoord.lng + (Math.random() - 0.5) * 1.2,
+          lat: stateCoord.lat + (Math.random() - 0.5) * 1.1,
+          lng: stateCoord.lng + (Math.random() - 0.5) * 1.1,
         };
 
-        const markerColor = dist.riskLevel === 'Critical' ? '#7f1d1d' : dist.riskLevel === 'High' ? '#b45309' : '#0b3c6d';
+        const distColor = dist.riskLevel === 'Critical' ? '#b91c1c' : dist.riskLevel === 'High' ? '#d97706' : '#1e3a8a';
 
+        // Interactive District Badge Marker
         const customIcon = L.divIcon({
           className: 'leaflet-custom-marker',
           html: `
-            <div style="background-color: ${markerColor}; width: 26px; height: 26px; border-radius: 9999px; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 10px; font-family: monospace;">
+            <div style="background-color: ${distColor}; width: 28px; height: 28px; border-radius: 9999px; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 10px; font-family: monospace; cursor: pointer;">
               ${dist.pendingLoad > 999 ? (dist.pendingLoad / 1000).toFixed(0) + 'k' : dist.pendingLoad}
             </div>
           `,
-          iconSize: [26, 26],
-          iconAnchor: [13, 13],
+          iconSize: [28, 28],
+          iconAnchor: [14, 14],
         });
 
         const marker = L.marker([coords.lat, coords.lng], { icon: customIcon }).addTo(markersGroup);
 
         marker.bindPopup(`
-          <div style="font-family: sans-serif; min-width: 160px; padding: 2px;">
-            <div style="font-weight: 700; font-size: 12px; color: #0f172a; margin-bottom: 2px;">${dist.districtName}</div>
-            <div style="font-size: 11px; color: #64748b; margin-bottom: 4px;">${selectedState.stateName}</div>
-            <div style="display: flex; justify-content: space-between; font-size: 11px;">
-              <span style="color: #64748b;">Pending:</span>
+          <div style="font-family: sans-serif; min-width: 170px; padding: 4px;">
+            <div style="font-weight: bold; font-size: 13px; color: #0f172a; margin-bottom: 2px;">${dist.districtName}</div>
+            <div style="font-size: 11px; color: #64748b; margin-bottom: 6px;">${selectedState.stateName}</div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px;">
+              <span style="color: #64748b;">Pending Cases:</span>
               <strong style="color: #0f172a;">${dist.pendingLoad.toLocaleString()}</strong>
             </div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px;">
+              <span style="color: #64748b;">SLA Compliance:</span>
+              <strong style="color: ${dist.slaCompliancePct > 80 ? '#1e3a8a' : '#d97706'};">${dist.slaCompliancePct}%</strong>
+            </div>
             <div style="display: flex; justify-content: space-between; font-size: 11px;">
-              <span style="color: #64748b;">SLA:</span>
-              <strong style="color: ${dist.slaCompliancePct > 80 ? '#047857' : '#b45309'};">${dist.slaCompliancePct}%</strong>
+              <span style="color: #64748b;">Resolved:</span>
+              <strong style="color: #0f172a;">${dist.resolvedCount.toLocaleString()}</strong>
             </div>
           </div>
         `);
@@ -199,36 +208,41 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({
 
         const color = getMetricColor(st);
 
+        // Interactive State Hub Badge with State Code & Load
         const customIcon = L.divIcon({
           className: 'leaflet-state-marker',
           html: `
-            <div style="background-color: ${color}; width: 32px; height: 32px; border-radius: 7px; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.18); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; cursor: pointer;">
-              <span style="font-weight: 700; font-size: 10px; line-height: 1;">${st.stateCode}</span>
-              <span style="font-size: 8px; font-family: monospace; opacity: 0.9;">${(st.pendingLoad / 1000).toFixed(1)}k</span>
+            <div style="background-color: ${color}; width: 34px; height: 34px; border-radius: 8px; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.22); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; cursor: pointer; transition: transform 0.15s ease;">
+              <span style="font-weight: 800; font-size: 11px; line-height: 1;">${st.stateCode}</span>
+              <span style="font-size: 8px; font-family: monospace; opacity: 0.95; margin-top: 1px;">${(st.pendingLoad / 1000).toFixed(1)}k</span>
             </div>
           `,
-          iconSize: [32, 32],
-          iconAnchor: [16, 16],
+          iconSize: [34, 34],
+          iconAnchor: [17, 17],
         });
 
         const marker = L.marker([coords.lat, coords.lng], { icon: customIcon }).addTo(markersGroup);
 
         marker.bindPopup(`
-          <div style="font-family: sans-serif; min-width: 170px; padding: 2px;">
+          <div style="font-family: sans-serif; min-width: 180px; padding: 4px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-              <strong style="font-size: 12px; color: #0f172a;">${st.stateName}</strong>
-              <span style="font-size: 10px; background: #f1f5f9; padding: 1px 4px; border-radius: 4px; font-weight: 600; color: #334155;">${st.riskLevel}</span>
+              <strong style="font-size: 13px; color: #0f172a;">${st.stateName}</strong>
+              <span style="font-size: 10px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-weight: 600; color: #334155;">${st.riskLevel}</span>
             </div>
-            <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 2px;">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px;">
               <span style="color: #64748b;">Pending Cases:</span>
               <strong style="color: #0f172a;">${st.pendingLoad.toLocaleString()}</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 2px;">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px;">
               <span style="color: #64748b;">SLA Compliance:</span>
-              <strong style="color: ${st.slaCompliancePct > 85 ? '#047857' : '#b45309'};">${st.slaCompliancePct}%</strong>
+              <strong style="color: ${st.slaCompliancePct > 85 ? '#1e3a8a' : '#d97706'};">${st.slaCompliancePct}%</strong>
             </div>
-            <div style="font-size: 10px; text-align: center; color: #0b3c6d; font-weight: 600; padding-top: 4px; border-top: 1px solid #e2e8f0; cursor: pointer;">
-              Click to focus jurisdiction →
+            <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px;">
+              <span style="color: #64748b;">Disposed:</span>
+              <strong style="color: #0f172a;">${(st.resolvedCount ?? 0).toLocaleString()}</strong>
+            </div>
+            <div style="font-size: 10px; text-align: center; color: #1e3a8a; font-weight: bold; padding-top: 5px; border-top: 1px solid #e2e8f0; cursor: pointer;">
+              Click to drill down into districts →
             </div>
           </div>
         `);
@@ -240,20 +254,15 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({
     }
   }, [states, activeLayer, selectedState]);
 
-  // Ranked high-risk districts
-  const allDistricts = states.flatMap((s) => s.districts);
-  const highRiskDistricts = [...allDistricts]
-    .sort((a, b) => b.pendingLoad - a.pendingLoad)
-    .slice(0, 5);
-
   return (
     <div className="space-y-3">
-      {/* 3 Core Filter Pills */}
+      {/* Interactive Layer Filters + Reset button */}
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs">
+        <div className="flex items-center gap-1 bg-slate-100/90 p-1 rounded-xl border border-slate-200/80 text-xs">
           <button
+            type="button"
             onClick={() => onLayerChange('pending')}
-            className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
               activeLayer === 'pending'
                 ? 'bg-white text-slate-900 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -262,8 +271,9 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({
             Pending Backlog
           </button>
           <button
+            type="button"
             onClick={() => onLayerChange('sla')}
-            className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
               activeLayer === 'sla'
                 ? 'bg-white text-slate-900 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -272,8 +282,9 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({
             SLA Compliance
           </button>
           <button
+            type="button"
             onClick={() => onLayerChange('hotspots')}
-            className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
               activeLayer === 'hotspots'
                 ? 'bg-white text-slate-900 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -285,151 +296,60 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({
 
         {selectedState && (
           <button
+            type="button"
             onClick={() => onSelectState(null)}
-            className="text-xs text-[#0b3c6d] font-semibold hover:underline flex items-center gap-1 cursor-pointer"
+            className="text-xs text-slate-700 font-semibold hover:text-slate-950 flex items-center gap-1 cursor-pointer bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200"
           >
             <RotateCcw size={12} />
-            Reset to All India
+            Reset to All India ({selectedState.stateName})
           </button>
         )}
       </div>
 
-      {/* Main Grid: Leaflet Map (8 cols) + Top 5 District Focus (4 cols) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Leaflet Map Canvas */}
-        <div className="lg:col-span-8 bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs relative flex flex-col justify-between">
-          <div className="w-full h-[380px] rounded-lg border border-slate-200 overflow-hidden relative z-10">
-            <div ref={mapContainerRef} className="w-full h-full" />
-
-            {/* Custom Leaflet Zoom Overlay Controls */}
-            <div className="absolute bottom-3 right-3 z-20 flex flex-col space-y-1 shadow-xs rounded-lg overflow-hidden border border-slate-200 bg-white">
-              <button
-                type="button"
-                onClick={() => mapInstanceRef.current?.zoomIn()}
-                className="p-1.5 hover:bg-slate-100 text-slate-700 transition-colors cursor-pointer"
-                title="Zoom In"
-              >
-                <ZoomIn size={14} />
-              </button>
-              <button
-                type="button"
-                onClick={() => mapInstanceRef.current?.zoomOut()}
-                className="p-1.5 hover:bg-slate-100 text-slate-700 transition-colors border-t border-slate-100 cursor-pointer"
-                title="Zoom Out"
-              >
-                <ZoomOut size={14} />
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-2.5 pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#047857]"></span>
-                <span>Compliant</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#b45309]"></span>
-                <span>Moderate</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#7f1d1d]"></span>
-                <span>High Backlog</span>
-              </div>
-            </div>
-            <span className="text-slate-400 font-mono text-[11px]">
-              {selectedState ? `${selectedState.stateName} View` : '15 State Hubs'}
-            </span>
-          </div>
-        </div>
-
-        {/* Priority District Focus List */}
-        <div className="lg:col-span-4 bg-white p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                <AlertTriangle size={14} className="text-slate-600" />
-                Priority Jurisdictions
-              </h3>
-              <span className="text-[10px] text-slate-500 font-mono">Top 5 Backlog</span>
-            </div>
-
-            <div className="space-y-1.5 overflow-y-auto max-h-[310px] pr-1">
-              {highRiskDistricts.map((dist, idx) => (
-                <div
-                  key={dist.districtName}
-                  onClick={() => onSelectDistrict?.(dist)}
-                  className="p-2 rounded-lg border border-slate-100 bg-slate-50/70 hover:bg-slate-100 hover:border-slate-300 transition-all cursor-pointer group"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 truncate">
-                      <span className="w-4 h-4 rounded-full bg-slate-800 text-white text-[9px] font-bold flex items-center justify-center font-mono shrink-0">
-                        {idx + 1}
-                      </span>
-                      <span className="text-xs font-bold text-slate-800 group-hover:text-[#0b3c6d] truncate">
-                        {dist.districtName}
-                      </span>
-                    </div>
-                    <span className="text-[11px] font-mono font-bold text-slate-900">
-                      {dist.pendingLoad.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-[10px] text-slate-500 mt-1 pl-6">
-                    <span>{dist.stateName}</span>
-                    <span className="font-mono">{dist.slaCompliancePct}% SLA</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-2 pt-2 border-t border-slate-100 text-center">
-            <span className="text-[11px] text-slate-400">Click state marker on map to drill down</span>
-          </div>
-        </div>
+      {/* Clean Leaflet Stage with rounded corners */}
+      <div className="w-full h-[380px] sm:h-[420px] rounded-xl border border-slate-200/80 overflow-hidden relative shadow-2xs">
+        <div ref={mapContainerRef} className="w-full h-full" />
       </div>
 
-      {/* Selected State Drilldown Table if selected */}
+      {/* Selected State District Breakdown Table if drilled down */}
       {selectedState && (
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs animate-in fade-in duration-150">
-          <div className="flex items-center justify-between mb-3">
+        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-3 animate-in fade-in duration-150">
+          <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-bold text-slate-900">
+              <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
                 {selectedState.stateName} — District Breakdown
-              </h3>
-              <p className="text-xs text-slate-500">
-                {selectedState.pendingLoad.toLocaleString()} pending cases • {selectedState.slaCompliancePct}% compliance
+              </h4>
+              <p className="text-[11px] text-slate-500">
+                {selectedState.pendingLoad.toLocaleString()} pending cases across {selectedState.districts.length} jurisdictions
               </p>
             </div>
             <button
               onClick={() => onSelectState(null)}
-              className="text-xs text-slate-500 hover:text-slate-800 font-semibold"
+              className="text-xs text-slate-500 hover:text-slate-800 font-semibold cursor-pointer"
             >
-              Close Breakdown ✕
+              Close ✕
             </button>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-slate-50 border-y border-slate-200 text-slate-500 uppercase text-[10px]">
+                <tr className="bg-white border-y border-slate-200 text-slate-500 uppercase text-[10px]">
                   <th className="py-2 px-2.5">District</th>
                   <th className="py-2 px-2.5">Pending</th>
                   <th className="py-2 px-2.5">Resolved</th>
                   <th className="py-2 px-2.5">SLA Compliance</th>
                   <th className="py-2 px-2.5">Primary Issue</th>
-                  <th className="py-2 px-2.5">Nodal Officer</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-200/60 bg-white">
                 {selectedState.districts.map((d) => (
-                  <tr key={d.districtName} className="hover:bg-slate-50/80 transition-colors">
+                  <tr key={d.districtName} className="hover:bg-slate-50 transition-colors">
                     <td className="py-2 px-2.5 font-semibold text-slate-900">{d.districtName}</td>
                     <td className="py-2 px-2.5 font-mono font-semibold text-slate-900">{d.pendingLoad.toLocaleString()}</td>
                     <td className="py-2 px-2.5 font-mono text-slate-600">{d.resolvedCount.toLocaleString()}</td>
-                    <td className="py-2 px-2.5 font-mono font-semibold text-[#047857]">{d.slaCompliancePct}%</td>
+                    <td className="py-2 px-2.5 font-mono font-semibold text-slate-900">{d.slaCompliancePct}%</td>
                     <td className="py-2 px-2.5 text-slate-600 truncate max-w-xs">{d.topIssue}</td>
-                    <td className="py-2 px-2.5 text-slate-500 text-[11px]">{d.nodalOfficer}</td>
                   </tr>
                 ))}
               </tbody>

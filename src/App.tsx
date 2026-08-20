@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { Header } from './components/common/Header';
 import { Sidebar, NavTabId } from './components/common/Sidebar';
 import { FilterBar } from './components/common/FilterBar';
@@ -16,6 +16,7 @@ import { BottleneckDetection } from './pages/BottleneckDetection';
 import { Recommendations } from './pages/Recommendations';
 import { Reports } from './pages/Reports';
 import { SettingsPage } from './pages/Settings';
+import { WhatsAppBotIntake } from './pages/WhatsAppBotIntake';
 
 import {
   generateRealisticGrievances,
@@ -23,11 +24,13 @@ import {
   RECOMMENDATIONS_DATA
 } from './data/mockData';
 import { GrievanceRecord, GlobalFilterState, CaseStatus } from './types';
+import { AppLanguage } from './utils/translations';
 
 export function App() {
   const [activeTab, setActiveTab] = useState<NavTabId>('overview');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [language, setLanguage] = useState<AppLanguage>('en');
   const mainScrollRef = useRef<HTMLElement>(null);
 
   // Modals & Drawers
@@ -64,6 +67,11 @@ export function App() {
       status: '',
       riskLevel: '',
     });
+  };
+
+  // Add new grievance dynamically (from WhatsApp AI Bot)
+  const handleAddGrievance = (newGrv: GrievanceRecord) => {
+    setGrievanceData((prev) => [newGrv, ...prev]);
   };
 
   // Filtered dataset according to Global Filters
@@ -128,7 +136,7 @@ export function App() {
   const pendingRecommendations = RECOMMENDATIONS_DATA.filter((r) => r.status === 'Active').length;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans antialiased selection:bg-[#0b3c6d] selection:text-white">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans antialiased selection:bg-slate-900 selection:text-white">
       {/* Top Header Navigation */}
       <Header
         onOpenExport={() => setIsExportOpen(true)}
@@ -136,6 +144,8 @@ export function App() {
         grievances={grievanceData}
         onSelectGrievance={(grv) => setSelectedGrievance(grv)}
         onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+        language={language}
+        onLanguageChange={setLanguage}
       />
 
       {/* Main Body Layout: Left Sidebar + Right Content Area */}
@@ -150,6 +160,7 @@ export function App() {
           slaBreachCount={slaBreachCount}
           criticalCasesCount={criticalCasesCount}
           recommendationsCount={pendingRecommendations}
+          language={language}
         />
 
         {/* Right Scrollable Content View */}
@@ -158,13 +169,15 @@ export function App() {
           id="main-viewport-content"
           className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5 max-w-[1700px] mx-auto w-full"
         >
-          {/* Global Filter Bar (Accessible across views) */}
-          <FilterBar
-            filters={globalFilters}
-            onFilterChange={handleFilterChange}
-            onReset={handleResetFilters}
-            totalFilteredCount={filteredGrievances.length}
-          />
+          {/* Global Filter Bar (Hidden on WhatsApp Bot tab for focused experience) */}
+          {activeTab !== 'whatsapp_bot' && (
+            <FilterBar
+              filters={globalFilters}
+              onFilterChange={handleFilterChange}
+              onReset={handleResetFilters}
+              totalFilteredCount={filteredGrievances.length}
+            />
+          )}
 
           {/* Active View Rendering */}
           {activeTab === 'overview' && (
@@ -172,6 +185,7 @@ export function App() {
               onSelectGrievance={(grv) => setSelectedGrievance(grv)}
               grievances={filteredGrievances}
               onNavigateTab={(tab) => handleTabChange(tab)}
+              language={language}
             />
           )}
 
@@ -186,6 +200,18 @@ export function App() {
               grievances={filteredGrievances}
               onSelectGrievance={(grv) => setSelectedGrievance(grv)}
               onBulkStatusChange={handleBulkStatusChange}
+              language={language}
+            />
+          )}
+
+          {activeTab === 'whatsapp_bot' && (
+            <WhatsAppBotIntake
+              onAddGrievance={handleAddGrievance}
+              onSelectGrievance={(grv) => {
+                setSelectedGrievance(grv);
+                setActiveTab('grievances');
+              }}
+              language={language}
             />
           )}
 
@@ -195,7 +221,7 @@ export function App() {
             activeTab === 'recommendations' ||
             activeTab === 'department' ||
             activeTab === 'sentiment') && (
-            <PredictiveAnalytics />
+            <PredictiveAnalytics language={language} />
           )}
 
           {activeTab === 'reports' && (
